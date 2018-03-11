@@ -82,7 +82,7 @@ int main(int argc, char ** argv){
     
     switch (example_string) {
         case 0 : // wooden_ball
-            wooden_ball_example(theta);
+            //wooden_ball_example(theta);
             break;
         case 1 : // cannon ball
             cannon_ball_example(theta);

@@ -1,13 +1,13 @@
 #include "vectorn.hpp"
 
-#ifndef SOLVER_SECOND_DERIVATIVE_H
-#define SOLVER_SECOND_DERIVATIVE_H
+#ifndef SOLVER_INTEGRATOR_RKN_H
+#define SOLVER_INTEGRATOR_RKN_H
 
 namespace solver 
 {
 
-    /// Abstract class that gives the value of second derivative from an ODE
-    class second_derivative{
+    /// Abstract class that gives the value of the second derivative from an ODE
+    class second_derivative {
 
     public:
         virtual ~second_derivative() { };
