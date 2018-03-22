@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Compiling..."
-g++ program.cpp src/vectorn.cpp src/integrator_rkn.cpp src/integrator_rk4.cpp src/wooden_ball.cpp src/cannon_ball.cpp  -std=c++11
+g++ program.cpp src/vectorn.cpp src/integrator_rkn.cpp src/integrator_rk4.cpp src/wooden_ball.cpp src/cannon_ball.cpp src/solver_shooting.cpp  -std=c++11
 #echo "Running wooden ball..."
 #echo "Saving data..."
 #for i in {45..120..5}

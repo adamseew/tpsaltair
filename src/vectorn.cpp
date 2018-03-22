@@ -17,6 +17,10 @@ vectorn::vectorn(double value) : vectorn::vectorn(1, &value) { }
 
 vectorn::vectorn(int __length) : vectorn::vectorn(__length, (double*)malloc(sizeof(double) * __length)) { }
 
+vectorn::vectorn(const vectorn &_vectorn)  : vectorn::vectorn(_vectorn._length, _vectorn.vector) { }
+
+vectorn::vectorn() : vectorn::vectorn(1, new double(0.0)) { }
+
 const int vectorn::length() const { return _length; }
 
 const double vectorn::get(int index) const { 

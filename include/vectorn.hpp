@@ -23,6 +23,11 @@ namespace solver
         /// @brief Given an int n, initializes a nx1 void vector
         /// @param __length number of vector components
         vectorn(int __length);
+
+        vectorn(const vectorn &_vectorn);
+
+        /// @brief Default constructor
+        vectorn();
         
         /// @brief Gives vector's size
         /// @return value of vectors size
