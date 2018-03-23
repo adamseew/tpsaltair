@@ -1,3 +1,5 @@
+#include <vector>
+
 #ifndef SOLVER_VECTORN_H
 #define SOLVER_VECTORN_H
 
@@ -8,7 +10,7 @@ namespace solver
 
     private:
         int _length;
-        double* vector;
+        std::vector<double> _vector;
 
     public:
         /// @brief Given a set of doubles and its length n, initializes a nx1 vector
@@ -23,8 +25,6 @@ namespace solver
         /// @brief Given an int n, initializes a nx1 void vector
         /// @param __length number of vector components
         vectorn(int __length);
-
-        vectorn(const vectorn &_vectorn);
 
         /// @brief Default constructor
         vectorn();

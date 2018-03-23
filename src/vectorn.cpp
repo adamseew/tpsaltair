@@ -6,18 +6,17 @@
 
 using namespace solver;
 
+using std::vector;
+
 vectorn::vectorn(int __length, double* values) {
     _length = __length;
-    vector = (double*)malloc(sizeof(double) * length());
     for (int i = 0; i < length(); i++)
-        vector[i] = values[i];
+        _vector.push_back(values[i]);
 }
 
 vectorn::vectorn(double value) : vectorn::vectorn(1, &value) { }
 
 vectorn::vectorn(int __length) : vectorn::vectorn(__length, (double*)malloc(sizeof(double) * __length)) { }
-
-vectorn::vectorn(const vectorn &_vectorn)  : vectorn::vectorn(_vectorn._length, _vectorn.vector) { }
 
 vectorn::vectorn() : vectorn::vectorn(1, new double(0.0)) { }
 
@@ -25,12 +24,12 @@ const int vectorn::length() const { return _length; }
 
 const double vectorn::get(int index) const { 
     assert(index >= 0 && index < length());
-    return vector[index]; 
+    return _vector.at(index); 
 }
 
 void vectorn::set(int index, double value) {
     assert(index >= 0 && index < length());
-    vector[index] = value; 
+    _vector.at(index) = value; 
 }
 
 double vectorn::abs() {
@@ -40,7 +39,7 @@ double vectorn::abs() {
     return sqrt(sum);
 }
 
-vectorn* vectorn::copy() { return new vectorn(length(), vector); }
+vectorn* vectorn::copy() { return new vectorn(length(), &_vector[0]); }
 
 vectorn vectorn::operator+(const vectorn& _vectorn) const {
     double* values = (double*)malloc(sizeof(double) * length());

@@ -88,7 +88,7 @@ void cannon_ball_shooting_example(double theta) {
     start_position.set(0, 0.0);
     start_position.set(1, 0.0);
 
-    final_position.set(0, 205.0);
+    final_position.set(0, 605.0);
     final_position.set(1, 0.0);
 
     start_velocity.set(0, 50 * cos(theta));

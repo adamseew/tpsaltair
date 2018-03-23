@@ -6,6 +6,9 @@
 #ifndef SOLVER_SOLVER_SHOOTING_H
 #define SOLVER_SOLVER_SHOOTING_H
 
+#define __APROXIMATION_TOLERANCE    1e-04
+#define __SHOOTING_LIMIT            100
+
 namespace solver 
 {
     class solver_shooting {

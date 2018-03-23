@@ -5,7 +5,8 @@
 using namespace std;
 using namespace solver;
 
-#define SOLVER_SHOOTING_DEBUG 1
+#define __SOLVER_SHOOTING_DEBUG                     1
+//#define __SOLVER_SHOOTING_APROXIMATION_TOLERANCE  1
 
 solver_shooting::solver_solution::solver_solution(double _delta, vectorn* _solution) {
     delta = _delta;
@@ -25,7 +26,7 @@ solver_shooting::solver_shooting(second_derivative* __second_derivative, vectorn
     set_adjust_function([](double target, double x, double dx) { return (target * dx) / x; });
 }
 
-// TODO
+// TODO (n)
 solver_shooting::solver_shooting(first_derivative* __first_derivative, vectorn _start_y, vectorn _start_dy, vectorn _final_y, double _t0, double _h) {
     _first_derivative = __first_derivative;
     _second_derivative = nullptr;
@@ -75,25 +76,29 @@ void solver_shooting::shoot(double epsilon) {
     int                     shoot_count =       0;
     string                  file_name;
 
-    vectorn*                y;
+    vectorn*                y =                 (vectorn*)malloc(sizeof(vectorn));
     vectorn*                dy =                (vectorn*)malloc(sizeof(vectorn));
     vectorn*                d2y =               (vectorn*)malloc(sizeof(vectorn));
 
     vector<solver_solution*> solutions;
 
     while (true) {
+        if (shoot_count >= __SHOOTING_LIMIT) {
+            fputs ("shooting limit exceeded, the solution diverges\n", stderr);
+            abort();
+        }
 
-        y = (vectorn*)malloc(sizeof(vectorn));
-
-#ifdef SOLVER_SHOOTING_DEBUG
+#ifdef __SOLVER_SHOOTING_DEBUG
         file_name  = ".tmp_";
+        if (shoot_count < 10)
+            file_name += "0";
         file_name += to_string(shoot_count++);
         file_name += ".dat";
 #endif
 
         integrator_rkn* _integrator_rkn = new integrator_rkn(_second_derivative, t0, start_y, start_dy, h, start_d2y);
 
-#ifdef SOLVER_SHOOTING_DEBUG
+#ifdef __SOLVER_SHOOTING_DEBUG
         freopen(file_name.c_str(), "w", stdout);
 
         cout << start_y.get(0) << "\t" << start_y.get(1) << "\t"
@@ -103,20 +108,22 @@ void solver_shooting::shoot(double epsilon) {
 
         do {
             _integrator_rkn->step(&t, y, dy, d2y);
-#ifdef SOLVER_SHOOTING_DEBUG
+#ifdef __SOLVER_SHOOTING_DEBUG
             cout << y->get(0) << "\t" << y->get(1) << "\t"
                  << t << "\t" << dy->get(0) << "\t" << dy->get(1) << "\t"
                  << d2y->get(0) << "\t" << d2y->get(1) << endl;
 #endif
+#ifdef __SOLVER_SHOOTING_APROXIMATION_TOLERANCE
+        } while (y->get(1) + __APROXIMATION_TOLERANCE > final_y.get(1));
+#else
         } while (y->get(1) > final_y.get(1));
+#endif
 
         delta = cost_function(final_y.get(0), y->get(0));
 
-        solver_solution* _solver_solution = new solver_solution(delta, y);
-
+        solver_solution* _solver_solution = new solver_solution(delta, start_dy.copy());
         solutions.push_back(_solver_solution);
 
-        // TODO il controllo va fatto su delta calcolato o su distance_function_output.push_back()???
         if (fabs(delta) < epsilon)
             break;
                 
@@ -126,7 +133,7 @@ void solver_shooting::shoot(double epsilon) {
             start_dy.set(0, adjust_function(final_y.get(0), y->get(0),  start_dy.get(0)) + fixed_adjustment);
             start_dy.set(1, adjust_function(final_y.get(0), y->get(0),  start_dy.get(1)) + fixed_adjustment);
         } else {
-            start_dy.set(0, (solutions.back()->solution->get(0) + latest_other_side(solutions, delta)->solution->get(1)) / 2);
+            start_dy.set(0, (solutions.back()->solution->get(0) + latest_other_side(solutions, delta)->solution->get(0)) / 2);
             start_dy.set(1, (solutions.back()->solution->get(1) + latest_other_side(solutions, delta)->solution->get(1)) / 2);
         } 
 

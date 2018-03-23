@@ -16,7 +16,7 @@ void integrator_rkn::step(double* t1, vectorn* y1, vectorn* dy1, vectorn* d2y1) 
 
     vectorn k1 = *d2y0;
     vectorn k2 = _second_derivative->get_value(t0 + h/2, *y0 + h/2 * *dy0 + h2/8 * k1, *dy0 + h/2 * k1);
-    vectorn k3 = _second_derivative->get_value(t0 + h/2, *y0 + h/2 * *dy0 + h2/8 * k2, *dy0 + h/2 * k2);
+    vectorn k3 = _second_derivative->get_value(t0 + h/2, *y0 + h/2 * *dy0 + h2/8 * k1, *dy0 + h/2 * k2);
     vectorn k4 = _second_derivative->get_value(t0 + h,   *y0 + h   * *dy0 + h2/2 * k3, *dy0 + h   * k3);
 
     *t1 = t0 + h;
