@@ -40,6 +40,7 @@ namespace solver
         /// @param _d2y0                value of second derivative
         integrator_rkn(second_derivative* __second_derivative, double _t0, vectorn _y0, vectorn _dy0, double _h, vectorn _d2y0);
 
+        /// @brief Default destructor
         ~integrator_rkn();
         
         /// @brief Gives values (params are passed as pointers) after one step of Nyström modification of the fourth-order Runge-Kutta method

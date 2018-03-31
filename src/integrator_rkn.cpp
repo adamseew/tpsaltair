@@ -12,7 +12,6 @@ integrator_rkn::integrator_rkn(second_derivative* __second_derivative, double _t
 }
 
 integrator_rkn::~integrator_rkn() {
-    delete _second_derivative;
     delete y0;
     delete dy0;
     delete d2y0;

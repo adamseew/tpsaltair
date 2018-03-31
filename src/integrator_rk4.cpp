@@ -11,7 +11,6 @@ integrator_rk4::integrator_rk4(first_derivative* __first_derivative, double _t0,
 }
 
 integrator_rk4::~integrator_rk4() {
-    delete _first_derivative;
     delete y0;
     delete dy0;
 }

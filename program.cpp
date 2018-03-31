@@ -25,9 +25,9 @@ void wooden_ball_example(double theta) {
     cout << t0 << "\t" << start_position.get(0) << "\t" << start_velocity.get(0) << "\t" << start_acceleration.get(0) << endl;
 
     double t; // time t [s]
-    vectorn* position = (vectorn*)malloc(sizeof(vectorn)); // position y [m]
-    vectorn* velocity = (vectorn*)malloc(sizeof(vectorn)); // velocity v [m/s]
-    vectorn* acceleration = (vectorn*)malloc(sizeof(vectorn)); // accelearion a [m/s^2]
+    vectorn* position = new vectorn(2); // position y [m]
+    vectorn* velocity = new vectorn(2); // velocity v [m/s]
+    vectorn* acceleration = new vectorn(2); // accelearion a [m/s^2]
 
     while (t < tmax) {
         _integrator_rkn.step(&t, position, velocity, acceleration);
@@ -66,9 +66,9 @@ void cannon_ball_example(double theta) {
          << start_acceleration.get(0) << "\t" << start_acceleration.get(1) << endl;
 
     double t; // time t [s]
-    vectorn* position = (vectorn*)malloc(sizeof(vectorn)); // position x,y [m]
-    vectorn* velocity = (vectorn*)malloc(sizeof(vectorn)); // velocity dx/dt,dy/dt = vx,vy [m/s]
-    vectorn* acceleration = (vectorn*)malloc(sizeof(vectorn)); // acceleration d2x/dt,d2y/dt = dvx/dt,dvy/dt = ax,ay [m/s^2]
+    vectorn* position = new vectorn(2); // position x,y [m]
+    vectorn* velocity = new vectorn(2); // velocity dx/dt,dy/dt = vx,vy [m/s]
+    vectorn* acceleration = new vectorn(2); // acceleration d2x/dt,d2y/dt = dvx/dt,dvy/dt = ax,ay [m/s^2]
 
     while (t < tmax) {
         _integrator_rkn.step(&t, position, velocity, acceleration);

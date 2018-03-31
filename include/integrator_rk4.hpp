@@ -36,6 +36,7 @@ namespace solver
         /// @param _dy0                 value of its derivative, i.e. dy0/dt
         integrator_rk4(first_derivative* __first_derivative, double _t0, vectorn _y0, double _h,  vectorn _dy0);
 
+        /// @brief Default destructor
         ~integrator_rk4();
         
         /// @brief Gives values (params are passed as pointers) after one step of the fourth-order Runge-Kutta method
