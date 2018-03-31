@@ -1,6 +1,7 @@
 #include "../include/solver_shooting.hpp"
 #include <stdexcept>
 #include <iostream>
+#include <fstream>
 #include <limits>
 #include <math.h>
 
@@ -115,18 +116,21 @@ vectorn solver_shooting::shoot(double epsilon) {
             _integrator_rk4 = new integrator_rk4(_first_derivative, t0, start_y, h, start_dy);
 
 #ifdef ___D_E_B_U_G___
-        freopen(file_name.c_str(), "w", stdout);
+        cout << "shoot attempt " << shoot_count << " started" << endl;
+
+        ofstream file;
+        file.open(file_name.c_str());
 
         for (int i = 0; i < start_y.length()  ; i++)
-            cout << start_y.get(i)   << "\t";
+            file << start_y.get(i)   << "\t";
         for (int i = 0; i < start_dy.length() ; i++)
-            cout << start_dy.get(i)  << "\t";
+            file << start_dy.get(i)  << "\t";
 
         if (_second_derivative != nullptr)
             for (int i = 0; i < start_d2y.length(); i++)
-                cout << start_d2y.get(i) << "\t";
+                file << start_d2y.get(i) << "\t";
 
-        cout << endl;
+        file << endl;
 #endif
 
         do {
@@ -137,20 +141,23 @@ vectorn solver_shooting::shoot(double epsilon) {
 
 #ifdef ___D_E_B_U_G___
             for (int i = 0; i < y->length()  ; i++)
-                cout << y->get(i)   << "\t";
+                file << y->get(i)   << "\t";
             for (int i = 0; i < dy->length() ; i++)
-                cout << dy->get(i)  << "\t";
+                file << dy->get(i)  << "\t";
 
             if (_second_derivative != nullptr)
                 for (int i = 0; i < d2y->length(); i++)
-                    cout << d2y->get(i) << "\t";
+                    file << d2y->get(i) << "\t";
 
-            cout << endl;
+            file << endl;
 #endif
 #ifdef __APROXIMATION_TOLERANCE
         } while (!stop_function(final_y.get(vectorn_flags::stop_position), y->get(final_y.get_index(vectorn_flags::stop_position)) + __APROXIMATION_TOLERANCE));
 #else
         } while (!stop_function(final_y.get(vectorn_flags::stop_position), y->get(final_y.get_index(vectorn_flags::stop_position))));
+#endif
+#ifdef ___D_E_B_U_G___
+        file.close();
 #endif
 
         delta = cost_function(final_y.get(vectorn_flags::cost_position), y->get(final_y.get_index(vectorn_flags::cost_position)));

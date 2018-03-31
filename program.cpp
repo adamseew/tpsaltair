@@ -83,19 +83,15 @@ void cannon_ball_example(double theta) {
     delete acceleration;
 }
 
-void shooting_method_example(double theta) {
+void shooting_method_example(double theta, int extreme_precision) {
 
     second_derivative* _second_derivative = new cannon_ball(0.1, 6000, 0.5, 9.81, 1.29);
 
-    double          t0 =                0.0000;
-
-    /// step to be used to obtain highest precision
-
-    //  double          h =                 0.0001;
-
-    /// step to be used to obtain a good precision
-
-    double          h =                 0.01;
+    double          t0 =                0.0000,
+                    h =                 0.01;
+    
+    if (extreme_precision)
+                    h =                 0.0001;
     
     vectorn start_position(2);
     vectorn start_velocity(2);
@@ -123,13 +119,11 @@ void shooting_method_example(double theta) {
     cannon_ball_solver.set_function_cost(  [](double target, double x)             {     return target - x;    });
     cannon_ball_solver.set_function_stop(  [](double target, double x)             {     return x < target;    });
 
-    /// epsilon to be used to obtain highest precision
-
-    //  vectorn solution = cannon_ball_solver.shoot(0.001);
-
-    /// epsilon to be used to obtain a good precision
-
-    vectorn solution = cannon_ball_solver.shoot(0.5);
+    vectorn solution;
+    if (extreme_precision)
+        solution = cannon_ball_solver.shoot(0.001);
+    else
+        solution = cannon_ball_solver.shoot(0.5);
 
     delete _second_derivative;
     
@@ -137,14 +131,18 @@ void shooting_method_example(double theta) {
 }
 
 int main(int argc, char ** argv){
-    double theta = 90.0 * M_PI / 180.0;
-    int example_string = 0;
+    double  theta =             90.0 * M_PI / 180.0;
+    int     example_string =    0,
+            extreme_precision = 0;
 
     if (argc > 1)
         example_string = stoi(argv[1]);
 
     if (argc > 2)
         theta = stoi(argv[2]) * M_PI / 180.0;
+
+    if (argc > 3)
+        extreme_precision = stoi(argv[3]);
     
     switch (example_string) {
         case 0 : 
@@ -159,8 +157,8 @@ int main(int argc, char ** argv){
             break;
         case 2 : 
             /// shooting method to a desired goal implementing cannon ball example
-
-            shooting_method_example(theta);
+            if (argc)
+            shooting_method_example(theta, extreme_precision);
             break;
     }
 
