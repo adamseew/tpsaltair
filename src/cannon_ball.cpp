@@ -16,6 +16,8 @@ cannon_ball::cannon_ball(double _ball_diameter, double _ball_rho, double _drag_c
     ball_area = 0.25 * M_PI * pow(ball_diameter, 2);
 }
 
+cannon_ball::~cannon_ball() { }
+
 vectorn cannon_ball::get_value(double t, vectorn y, vectorn v) {
     double vx = v.get(0);
     double vy = v.get(1);
@@ -35,11 +37,11 @@ vectorn cannon_ball::get_value(double t, vectorn y, vectorn v) {
     double drag_x = -drag * cos_alpha;
     double drag_y = -drag * cos_beta;
 
-    vectorn force = *new vectorn(2);
+    vectorn force(2);
     force.set(0, drag_x);
     force.set(1, -ball_mass * g + drag_y);
 
     vectorn acceleration = force / ball_mass;
-    return acceleration;
 
+    return acceleration;
 }

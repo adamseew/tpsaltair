@@ -1,12 +1,11 @@
 #include "../include/solver_shooting.hpp"
+#include <stdexcept>
 #include <iostream>
+#include <limits>
 #include <math.h>
 
 using namespace std;
 using namespace solver;
-
-#define __SOLVER_SHOOTING_DEBUG                     1
-//#define __SOLVER_SHOOTING_APROXIMATION_TOLERANCE  1
 
 solver_shooting::solver_solution::solver_solution(double _delta, vectorn* _solution) {
     delta = _delta;
@@ -22,8 +21,7 @@ solver_shooting::solver_shooting(second_derivative* __second_derivative, vectorn
     final_y = _final_y;
     t0 = _t0;   
     h = _h;
-    set_cost_function([](double target, double x) { return target - x; });
-    set_adjust_function([](double target, double x, double dx) { return (target * dx) / x; });
+    set_default_functions();
 }
 
 // TODO (n)
@@ -35,8 +33,7 @@ solver_shooting::solver_shooting(first_derivative* __first_derivative, vectorn _
     final_y = _final_y;
     t0 = _t0;   
     h = _h;
-    set_cost_function([](double target, double x) { return target - x; });
-    set_adjust_function([](double target, double x, double dx) { return (dx * target) / x; });
+    set_default_functions();
 }
 
 bool solver_shooting::isbisided(vector<solver_solution*> solutions) {
@@ -61,68 +58,88 @@ solver_shooting::solver_solution* solver_shooting::latest_other_side(vector<solv
     return nullptr;
 }
 
-void solver_shooting::set_cost_function(std::function<double (double, double)> _cost_function) {
-    cost_function = _cost_function;
+void solver_shooting::set_default_functions(void) {
+    set_function_adjust([](double target, double x, double dx)  { return (dx * target) / x; }   );
+    set_function_cost(  [](double target, double x)             { return target - x; }          );
+    set_function_stop(  [](double target, double x)             { return x > target; }          );
 }
 
-void solver_shooting::set_adjust_function(std::function<double (double, double, double)> _adjust_function) {
-    adjust_function = _adjust_function;
-}
+void solver_shooting::set_function_adjust(std::function<double(double, double, double)> function) { adjust_function = function; }
+void solver_shooting::set_function_cost(std::function<double(double, double)> function) { cost_function = function; }
+void solver_shooting::set_function_stop(std::function<bool(double, double)> function) { stop_function = function; }
 
-void solver_shooting::shoot(double epsilon) {
+vectorn solver_shooting::shoot(double epsilon) {
     double                  fixed_adjustment,
                             delta, 
-                            t;
+                            t =                 0.0,
+                            final_y_expl,
+                            final_y_index;
+
     int                     shoot_count =       0;
     string                  file_name;
 
-    vectorn*                y =                 (vectorn*)malloc(sizeof(vectorn));
-    vectorn*                dy =                (vectorn*)malloc(sizeof(vectorn));
-    vectorn*                d2y =               (vectorn*)malloc(sizeof(vectorn));
+    vectorn*                y =                 new vectorn(start_y.length());
+    vectorn*                dy =                new vectorn(start_dy.length());
+    vectorn*                d2y =               new vectorn(start_d2y.length());
+
+    integrator_rkn*         _integrator_rkn;
+
+    y->inherit_flags(start_y);
+    dy->inherit_flags(start_dy);
+    d2y->inherit_flags(start_d2y);
 
     vector<solver_solution*> solutions;
 
+    final_y_expl = final_y.get(vectorn_flags::stop_position);
+    final_y_index = final_y.get_index(vectorn_flags::stop_position);
+
     while (true) {
+
         if (shoot_count >= __SHOOTING_LIMIT) {
-            fputs ("shooting limit exceeded, the solution diverges\n", stderr);
-            abort();
+            throw std::length_error("shooting limit exceeded, the solution diverges");
         }
 
-#ifdef __SOLVER_SHOOTING_DEBUG
-        file_name  = ".tmp_";
-        if (shoot_count < 10)
-            file_name += "0";
-        file_name += to_string(shoot_count++);
-        file_name += ".dat";
+#ifdef ___D_E_B_U_G___
+        file_name = shoot_count < 10 ? ".tmp_0" : ".tmp_";            
+        file_name += to_string(shoot_count++) + ".dat";
 #endif
 
-        integrator_rkn* _integrator_rkn = new integrator_rkn(_second_derivative, t0, start_y, start_dy, h, start_d2y);
+        _integrator_rkn = new integrator_rkn(_second_derivative, t0, start_y, start_dy, h, start_d2y);
 
-#ifdef __SOLVER_SHOOTING_DEBUG
+#ifdef ___D_E_B_U_G___
         freopen(file_name.c_str(), "w", stdout);
 
-        cout << start_y.get(0) << "\t" << start_y.get(1) << "\t"
-             << t0 << "\t" << start_dy.get(0) << "\t" << start_dy.get(1) << "\t"
-             << start_d2y.get(0) << "\t" << start_d2y.get(1) << endl;
+        for (int i = 0; i < start_y.length()  ; i++)
+            cout << start_y.get(i)   << "\t";
+        for (int i = 0; i < start_dy.length() ; i++)
+            cout << start_dy.get(i)  << "\t";
+        for (int i = 0; i < start_d2y.length(); i++)
+            cout << start_d2y.get(i) << "\t";
+
+        cout << endl;
 #endif
 
         do {
             _integrator_rkn->step(&t, y, dy, d2y);
-#ifdef __SOLVER_SHOOTING_DEBUG
-            cout << y->get(0) << "\t" << y->get(1) << "\t"
-                 << t << "\t" << dy->get(0) << "\t" << dy->get(1) << "\t"
-                 << d2y->get(0) << "\t" << d2y->get(1) << endl;
+#ifdef ___D_E_B_U_G___
+        for (int i = 0; i < y->length()  ; i++)
+            cout << y->get(i)   << "\t";
+        for (int i = 0; i < dy->length() ; i++)
+            cout << dy->get(i)  << "\t";
+        for (int i = 0; i < d2y->length(); i++)
+            cout << d2y->get(i) << "\t";
+
+        cout << endl;
 #endif
-#ifdef __SOLVER_SHOOTING_APROXIMATION_TOLERANCE
-        } while (y->get(1) + __APROXIMATION_TOLERANCE > final_y.get(1));
+#ifdef __APROXIMATION_TOLERANCE
+        } while (!stop_function(final_y.get(vectorn_flags::stop_position), y->get(final_y.get_index(vectorn_flags::stop_position)) + __APROXIMATION_TOLERANCE));
 #else
-        } while (y->get(1) > final_y.get(1));
+        } while (!stop_function(final_y.get(vectorn_flags::stop_position), y->get(final_y.get_index(vectorn_flags::stop_position))));
 #endif
 
-        delta = cost_function(final_y.get(0), y->get(0));
+        delta = cost_function(final_y.get(vectorn_flags::cost_position), y->get(final_y.get_index(vectorn_flags::cost_position)));
 
-        solver_solution* _solver_solution = new solver_solution(delta, start_dy.copy());
-        solutions.push_back(_solver_solution);
+        solutions.push_back(new solver_solution(delta, start_dy.copy()));
 
         if (fabs(delta) < epsilon)
             break;
@@ -130,13 +147,26 @@ void solver_shooting::shoot(double epsilon) {
         if (!isbisided(solutions)) {
             fixed_adjustment = delta < 0 ? (-1) * pow(epsilon, 2) : pow(epsilon, 2);
             
-            start_dy.set(0, adjust_function(final_y.get(0), y->get(0),  start_dy.get(0)) + fixed_adjustment);
-            start_dy.set(1, adjust_function(final_y.get(0), y->get(0),  start_dy.get(1)) + fixed_adjustment);
+            /// adjustment of the parameters proportionaly to the desired goal; in this way, the solution below (or above) the goal is achieved on the next step. If the solution (abowe/below) is not achieved, and thus the solutions set is not besided, another lower (or greater) adjustment is done
+
+            for (int i = 0; i < start_dy.length(); i++)
+                start_dy.set(i, adjust_function(final_y.get(vectorn_flags::cost_position), y->get(vectorn_flags::cost_position),  start_dy.get(i)) + fixed_adjustment);
+
         } else {
-            start_dy.set(0, (solutions.back()->solution->get(0) + latest_other_side(solutions, delta)->solution->get(0)) / 2);
-            start_dy.set(1, (solutions.back()->solution->get(1) + latest_other_side(solutions, delta)->solution->get(1)) / 2);
+
+            /// modified bisection method implementation to adjust parameters and reach a solution
+
+            for (int i = 0; i < solutions.back()->solution->length(); i++)
+                start_dy.set(i, (solutions.back()->solution->get(i) + latest_other_side(solutions, delta)->solution->get(i)) / 2);
         } 
 
         start_d2y = _second_derivative->get_value(t0, start_y, start_dy);
-    } 
+
+    }
+
+    delete y;
+    delete dy;
+    delete d2y;
+
+    return start_dy; 
 }

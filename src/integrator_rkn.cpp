@@ -11,18 +11,29 @@ integrator_rkn::integrator_rkn(second_derivative* __second_derivative, double _t
     d2y0 = _d2y0.copy();
 }
 
+integrator_rkn::~integrator_rkn() {
+    delete _second_derivative;
+    delete y0;
+    delete dy0;
+    delete d2y0;
+}
+
 void integrator_rkn::step(double* t1, vectorn* y1, vectorn* dy1, vectorn* d2y1) {
     double h2 = h * h;
 
     vectorn k1 = *d2y0;
-    vectorn k2 = _second_derivative->get_value(t0 + h/2, *y0 + h/2 * *dy0 + h2/8 * k1, *dy0 + h/2 * k1);
-    vectorn k3 = _second_derivative->get_value(t0 + h/2, *y0 + h/2 * *dy0 + h2/8 * k1, *dy0 + h/2 * k2);
-    vectorn k4 = _second_derivative->get_value(t0 + h,   *y0 + h   * *dy0 + h2/2 * k3, *dy0 + h   * k3);
+    vectorn k2 = *_second_derivative->get_value(t0 + h/2, *y0 + h/2 * *dy0 + h2/8 * k1, *dy0 + h/2 * k1).inherit_flags(*y0);
+    vectorn k3 = *_second_derivative->get_value(t0 + h/2, *y0 + h/2 * *dy0 + h2/8 * k1, *dy0 + h/2 * k2).inherit_flags(*y0);
+    vectorn k4 = *_second_derivative->get_value(t0 + h  , *y0 + h   * *dy0 + h2/2 * k3, *dy0 + h   * k3).inherit_flags(*y0);
 
     *t1 = t0 + h;
     *y1 = *y0 + h * *dy0 + h2/6 * (k1 + k2 + k3);
     *dy1 = *dy0 + h/6 * (k1 + 2 * k2 + 2 * k3 + k4);
     *d2y1 = _second_derivative->get_value(*t1, *y1, *dy1);
+
+    delete y0;
+    delete dy0;
+    delete d2y0;
 
     t0 = *t1;
     y0 = y1->copy();

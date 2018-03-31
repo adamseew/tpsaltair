@@ -28,6 +28,8 @@ namespace solver
         /// @param _g                value of the acceleration due to gravity
         /// @param _air_rho          value of the air density
         cannon_ball(double _ball_diameter, double _ball_rho, double _drag_coefficient, double _g, double _air_rho);
+
+        ~cannon_ball();
         
         /// @brief Gives the acceleration of the ball
         /// @param t    value of time

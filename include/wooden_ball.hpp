@@ -29,6 +29,8 @@ namespace solver
         /// @param _air_rho          value of the air density
         wooden_ball(double _ball_diameter, double _ball_rho, double _drag_coefficient, double _g, double _air_rho);
 
+        ~wooden_ball();
+
         /// @brief Gives the acceleration of the ball
         /// @param t    value of time
         /// @param y    value of ball height above the initial level (as 1x1 vector)

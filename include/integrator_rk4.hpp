@@ -35,6 +35,8 @@ namespace solver
         /// @param _h                   integration step, i.e. time interval
         /// @param _dy0                 value of its derivative, i.e. dy0/dt
         integrator_rk4(first_derivative* __first_derivative, double _t0, vectorn _y0, double _h,  vectorn _dy0);
+
+        ~integrator_rk4();
         
         /// @brief Gives values (params are passed as pointers) after one step of the fourth-order Runge-Kutta method
         /// @param t1   value of the indipedent variable, i.e. time after the end of the step

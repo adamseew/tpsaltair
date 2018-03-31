@@ -19,8 +19,10 @@ wooden_ball::wooden_ball(double _ball_diameter, double _ball_rho, double _drag_c
     ball_area = 0.25 * M_PI * ball_diameter * ball_diameter;
 }
 
+wooden_ball::~wooden_ball() { }
+
 vectorn wooden_ball::get_value(double t, vectorn y, vectorn v) {
     double f = -ball_mass * g -sgn(v.get(0)) * 0.5 * drag_coefficient * air_rho * pow(v.get(0), 2) * ball_area;
-    vectorn d2y = *new vectorn(f / ball_mass);
+    vectorn d2y(f / ball_mass);
     return d2y;
 }
