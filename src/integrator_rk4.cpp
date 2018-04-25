@@ -1,5 +1,7 @@
 #include "../include/integrator_rk4.hpp"
 
+#include <iostream>
+
 using namespace solver;
 
 integrator_rk4::integrator_rk4(first_derivative* __first_derivative, double _t0, vectorn _y0, double _h, vectorn _dy0) {

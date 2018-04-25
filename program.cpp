@@ -1,9 +1,15 @@
 #include "include/wooden_ball.hpp"
 #include "include/cannon_ball.hpp"
+#include "include/quadrotor_1d.hpp"
 #include "include/solver_shooting.hpp"
 #include <functional>
 #include <iostream>
+#include <iterator>
+#include <fstream>
+#include <sstream>
 #include <cstdio>
+#include <string>
+#include <vector>
 #include <math.h>
 
 using namespace std;
@@ -130,6 +136,61 @@ void shooting_method_example(double theta, int extreme_precision) {
     //  cout << "needed velocity on (x, y) axis: (" << solution.get(0) << ", " << solution.get(1) << ")" << endl;
 }
 
+void quadrotor_1d_example(int extreme_precision) {
+
+#pragma region ___C_S_V___D_A_T_A___
+    vector<double> u;
+    ifstream fin("traj2.csv");
+    string item;
+    for (string line; getline(fin, line); ) {
+        istringstream in(line);
+
+        while(getline(in, item, ','))
+            u.push_back(atof(item.c_str()));
+    }
+#pragma endregion ___C_S_V___D_A_T_A___
+
+    first_derivative* _first_derivative = new quadrotor_1d(20.81, 0.5, 9.81, 0.0048, u, 16);
+
+    double          t0 =                0.0000,
+                    h =                 0.01;
+    
+    if (extreme_precision)
+                    h =                 0.0001;
+
+    vectorn start_q(4);
+
+    vector<vectorn_flags> _flags;
+    _flags.push_back(vectorn_flags::cost_position);
+    _flags.push_back(vectorn_flags::stop_position);
+
+    start_q.set(0, 0, _flags);
+    start_q.set(1, 0);
+    start_q.set(2, 0);
+    start_q.set(3, 0);
+
+    vectorn final_q(4);
+
+    final_q.set(0, 1);
+    final_q.set(1, 0);
+    final_q.set(2, 0.25 * 0.81);
+    final_q.set(3, 0);
+    final_q.inherit_flags(start_q);
+
+    vectorn start_dq = _first_derivative->get_value(t0, start_q);
+    solver_shooting quadrotor_1d_solver(_first_derivative, start_q, start_dq, final_q, t0, h);
+
+    quadrotor_1d_solver.set_function_adjust([](double target, double x, double dx)  { return (target * dx) / x; });
+    quadrotor_1d_solver.set_function_cost(  [](double target, double x)             {     return target - x;    });
+    quadrotor_1d_solver.set_function_stop(  [](double target, double x)             {     return x > target;    });
+
+    vectorn solution = quadrotor_1d_solver.shoot(0.5);
+
+    delete _first_derivative;
+    
+    //  cout << "needed velocity on (x, y) axis: (" << solution.get(0) << ", " << solution.get(1) << ")" << endl;
+}
+
 int main(int argc, char ** argv){
     double  theta =             90.0 * M_PI / 180.0;
     int     example_string =    0,
@@ -157,8 +218,13 @@ int main(int argc, char ** argv){
             break;
         case 2 : 
             /// shooting method to a desired goal implementing cannon ball example
-            if (argc)
+
             shooting_method_example(theta, extreme_precision);
+            break;
+        case 3 :
+            /// shooting method to describe optimal trajectory of a quadrotor in 1d
+
+            quadrotor_1d_example(extreme_precision);
             break;
     }
 

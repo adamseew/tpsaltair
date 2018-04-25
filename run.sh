@@ -42,7 +42,7 @@ if [ $exitstatus = 0 ]; then
             echo "Saving data..."
             case $OPTION2 in
                 E)
-                    echo "warning: the solver may takes several minutes!"
+                    echo "warning: the solver may take several minutes!"
                     echo -e "\033[0;31mh=0.0001, epsilon=0.001\033[0m"
 
                     count=0

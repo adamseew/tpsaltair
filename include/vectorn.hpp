@@ -25,7 +25,7 @@ namespace solver
     private:
         int                         _length;
         std::vector<double>         _vector;
-        std::vector<vectorn_flags>  _flags;
+        std::vector<std::vector<vectorn_flags>>  _flags;
 
     public:
         /// @brief Given a set of doubles and its length n, initializes a nx1 vector
@@ -70,10 +70,10 @@ namespace solver
         /// @return         the index corresponding to a specific flag
         const int get_index(vectorn_flags flag) const;
 
-        /// @brief Gives the flag of the vectorn corresponding to a specific index
+        /// @brief Gives the flags of the vectorn corresponding to a specific index
         /// @param index    index of which the flag has to be obtained
-        /// @return         the falg corresponding to a specific index
-        const vectorn_flags get_flag(int index) const;
+        /// @return         the set of falgs corresponding to a specific index
+        std::vector<vectorn_flags> get_flag(int index);
 
         /// @brief Stores a vaue in a specific row in a nx1 vector
         /// @param index    index of the row
@@ -86,10 +86,32 @@ namespace solver
         /// @param flag     the flag with which a specific row has to be flagged
         void set(int index, double value, vectorn_flags flag);
 
+        /// @brief Stores a vaue in a specific row in a nx1 vector
+        /// @param index    index of the row
+        /// @param value    the value to be stored in the row index
+        /// @param _flags   flags set with which a specific row has to be flagged
+        void set(int index, double value, std::vector<vectorn_flags> _flags);
+
         /// @brief Sets a flag in a specific row in a nx1 vector
         /// @param index    index of the row
         /// @param flag     the flag with which a specific row has to be flagged
         void set_flag(int index, vectorn_flags flag);
+
+        /// @brief Sets a set of flags in a specific row in a nx1 vector
+        /// @param index    index of the row
+        /// @param __flags  flags set with which a specific row has to be flagged
+        void set_flag(int index, std::vector<vectorn_flags> __flags);
+
+        /// @brief Says whenerver a specific index contains the desired flas
+        /// @param index    index of the row
+        /// @param flag     the flag to be checked
+        /// @return         boolean value that says if flag is contained
+        bool has_flag(int index, vectorn_flags flag);
+
+        /// @brief Remove a flag from the flags list of a specific row of the vectorn
+        /// @param index    index of the row
+        /// @param flag     the flag to be removed
+        void remove_flag(int index, vectorn_flags flag);
 
         /// @brief Inherits all flags from another vectorn (i.e. the flag on row i of the vectorn _vectorn, will be the same as the flag on row i of the vectorn this)
         /// @param _vectorn the object which flags have to be inherited by the current instance
