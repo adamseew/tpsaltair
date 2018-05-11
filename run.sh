@@ -1,12 +1,13 @@
 #!/bin/bash
 
 echo "Compiling..."
-g++ program.cpp src/vectorn.cpp src/integrator_rkn.cpp src/integrator_rk4.cpp src/wooden_ball.cpp src/cannon_ball.cpp src/solver_shooting.cpp -std=c++11
+g++ program.cpp src/vectorn.cpp src/integrator_rkn.cpp src/integrator_rk4.cpp src/wooden_ball.cpp src/cannon_ball.cpp src/solver_shooting.cpp src/quadrotor_1d.cpp -std=c++11
 
-OPTION=$(whiptail --title "TpsAltair" --menu "Choose an example from the list" 14 40 3 \
+OPTION=$(whiptail --title "TpsAltair" --menu "Choose an example from the list" 14 40 4 \
     "1" "  Wooden ball  " \
     "2" "  Cannon ball  " \
-    "3" "Shooting method"  3>&2 2>&1 1>&3	
+    "3" "Shooting method" \
+    "4" " Quadrotor 1d  "  3>&2 2>&1 1>&3	
 )
 
 exitstatus=$?
@@ -20,6 +21,11 @@ if [ $exitstatus = 0 ]; then
             do
                 ./a.out 0 $i > .tmp_$i.dat
             done
+
+            echo "Starting matlab..."
+            echo -e "\e[1mType 'quit' to exit matlab\e[0m"
+            matlab -nodesktop -nosplash -r "programtype=$OPTION;run plot_program.m;"
+
             ;;
         2)
             whiptail --title "Cannon ball" --msgbox "Example description: a simple cannon ball example with x,y axis and varying angles of fire. Either drag and initial velocity is considered to model the problem. Matlab is used to plot results." 14 40
@@ -29,6 +35,11 @@ if [ $exitstatus = 0 ]; then
             do
                 ./a.out 1 $i > .tmp_$i.dat
             done
+
+            echo "Starting matlab..."
+            echo -e "\e[1mType 'quit' to exit matlab\e[0m"
+            matlab -nodesktop -nosplash -r "programtype=$OPTION;run plot_program.m;"
+
             ;;
         3)
             whiptail --title "Shooting method" --msgbox "Example description: a complex shooting method solver example, that represents a system of a flying cannon projectile, that uses modified bisection method to adjust parameters. The same ODE of cannon ball example is considered. Matlab is used to plot results." 14 40
@@ -67,12 +78,28 @@ if [ $exitstatus = 0 ]; then
                     done 
                     ;;
             esac
+
+            echo "Starting matlab..."
+            echo -e "\e[1mType 'quit' to exit matlab\e[0m"
+            matlab -nodesktop -nosplash -r "programtype=$OPTION;run plot_program.m;"
+
+            ;;
+        4)
+            whiptail --title "Quadrotor 1d" --msgbox "Example description: a complex example of a quadrotor motion with different controls on pitch angles. Matlab is used to plot results." 14 40
+            echo "Running quadrotor 1d..."
+            echo "Saving data..."
+            for i in {37..207..10}
+            do
+                ./a.out 3 $i
+                mv .tmp_00.dat .tmp_$i.dat
+            done
+
+            echo "Starting matlab..."
+            echo -e "\e[1mType 'quit' to exit matlab\e[0m"
+            matlab -nodesktop -nosplash -r "programtype=$OPTION;run plot_quadrotor_1d.m;"
+
             ;;
     esac
-    
-    echo "Starting matlab..."
-    echo -e "\e[1mType 'quit' to exit matlab\e[0m"
-    matlab -nodesktop -nosplash -r "programtype=$OPTION;run plot_program.m;"
 fi
 
 echo "Cleaning..."

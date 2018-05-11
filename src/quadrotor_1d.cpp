@@ -32,11 +32,11 @@ vectorn quadrotor_1d::get_value(double t, vectorn q) {
     double px     = q.get(2);
     double ptheta = q.get(3);
 
-    vectorn pq(4);
+    vectorn dq(4);
 
-    pq.set(0, px / quadrotor_mass);
-    pq.set(1, ptheta / (moment_inertia * (1 + pow(cos(theta), 2))));
-    pq.set(2, (-1) * quadrotor_mass * g * tan(theta) + (drag_coefficient / quadrotor_mass) * px);
+    dq.set(0, px / quadrotor_mass);
+    dq.set(1, ptheta / (moment_inertia * (1 + pow(cos(theta), 2))));
+    dq.set(2, (-1) * quadrotor_mass * g * tan(theta) + (drag_coefficient / quadrotor_mass) * px);
 
     __time++;
     if (__time % time_progress_unit == 0) {
@@ -45,7 +45,7 @@ vectorn quadrotor_1d::get_value(double t, vectorn q) {
     if (_time >= u.size())
         _time = u.size() - 1;
 
-    pq.set(3, (pow(ptheta, 2) * sin(theta) * cos(theta)) / (moment_inertia * pow((1 + pow(cos(theta), 2)), 2)) + u.at(_time));
+    dq.set(3, (pow(ptheta, 2) * sin(theta) * cos(theta)) / (moment_inertia * pow((1 + pow(cos(theta), 2)), 2)) + u.at(_time));
 
-    return pq;
+    return dq;
 }

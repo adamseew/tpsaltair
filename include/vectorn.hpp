@@ -17,6 +17,12 @@ namespace solver
 
         /// indicates that the element has to be used in the cost function
         cost_position = 2,
+
+        // TODO
+        forward_fixed = 3,
+
+        // TODO
+        backward_fixed = 4,
     };
 
     /// Gives a point in n-dimensional space. The class stores a sequence of real numbers and defines operators enabling to treat such sequences as real vectors
