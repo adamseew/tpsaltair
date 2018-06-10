@@ -2,6 +2,7 @@
 #include "include/cannon_ball.hpp"
 #include "include/quadrotor_1d.hpp"
 #include "include/solver_shooting.hpp"
+#include "include/spliner.hpp"
 #include <functional>
 #include <iostream>
 #include <iterator>
@@ -190,18 +191,18 @@ void quadrotor_1d_example(double control_adjustment) {
 
 void forward_bacward_integration() {
 #pragma region ___C_S_V___D_A_T_A___
-    vector<double> u;
+    vector<double> u_y;
     ifstream fin("traj2.csv");
     string item;
     for (string line; getline(fin, line); ) {
         istringstream in(line);
 
         while(getline(in, item, ','))
-            u.push_back(atof(item.c_str()));
+            u_y.push_back(atof(item.c_str()));
     }
 #pragma endregion ___C_S_V___D_A_T_A___
 
-    first_derivative* _first_derivative = new quadrotor_1d(20.81, 0.5, 9.81, 0.0048, u, 16);
+    first_derivative* _first_derivative = new quadrotor_1d(20.81, 0.5, 9.81, 0.0048, u_y, 16);
 
     double                  t0 =            0.0000,
                             h =             0.0100,
@@ -316,6 +317,39 @@ void forward_bacward_integration() {
     
 }
 
+void cubic_spline() {
+#pragma region ___C_S_V___D_A_T_A___
+    vector<double> u_y;
+    ifstream fin("traj2.csv");
+    string item;
+    for (string line; getline(fin, line); ) {
+        istringstream in(line);
+
+        while(getline(in, item, ','))
+            u_y.push_back(atof(item.c_str()));
+    }
+#pragma endregion ___C_S_V___D_A_T_A___
+    vector<double> u_x;
+
+    double _u_x = 0.0;
+
+    for (int i = 0; i < u_y.size(); i++) {
+        u_x.push_back(_u_x);
+        _u_x++;
+    }
+
+    spline _spline;
+    _spline.set_points(u_x, u_y);
+    
+    ofstream file;
+    file.open(".spline.dat");
+
+    for (int i = 0; i < u_y.size(); i = i + 10)
+        file << u_x.at(i)   << "\t" << _spline(u_x.at(i)) << endl;
+
+    file.close();
+}
+
 int main(int argc, char ** argv){
     double  theta =             90.0 * M_PI / 180.0;
     int     example_string =    0,
@@ -356,6 +390,12 @@ int main(int argc, char ** argv){
             // TODO
 
             forward_bacward_integration();
+            break;
+
+        case 5 :
+            // TODO
+
+            cubic_spline();
             break;
     }
 
